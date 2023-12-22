@@ -54,8 +54,8 @@ public class StudentController {
         return new ResponseEntity<>(mapper.studentToStudentDTO(student),HttpStatus.OK);
     }
 
-    @GetMapping("/student")
-    public ResponseEntity<List<StudentDTO>> getAll(@RequestParam(name = "basis", defaultValue = "none") String basis){
+    @GetMapping("/student/get/{basis}")
+    public ResponseEntity<List<StudentDTO>> getAll(@PathVariable(name = "basis") String basis){
 
         List<Student> students = studentService.getAll();
         Stream<Student> studentStream = students.stream();
@@ -86,12 +86,21 @@ public class StudentController {
         return new ResponseEntity<>(studentService.delete(id),HttpStatus.OK);
     }
 
-    @GetMapping("/student/filter")
-    public ResponseEntity<List<AddStudentDTO>> filterByBirthDate(@RequestBody DateTimeDTO dateTimeDTO, @RequestParam(name = "basis") String basis){
+    @GetMapping("/student/filter/{basis}")
+    public ResponseEntity<List<AddStudentDTO>> filterByBirthDate(@RequestBody DateTimeDTO dateTimeDTO, @PathVariable(name = "basis") String basis){
         return new ResponseEntity<>(
                 studentService.filterByBirthDate(dateTimeDTO.getBirthDate(), basis).stream().map(iMapper::studentToAddStudentDTO)
                         .collect(Collectors.toList()),HttpStatus.OK
         );
+    }
+
+    @GetMapping("/student/page/{pageNumber}/{pageSize}/{field}")
+    public ResponseEntity<List<AddStudentDTO>> getWithPaginationAndSorting(@PathVariable(name = "pageNumber") int pageNumber,
+                                                                           @PathVariable(name = "pageSize") int pageSize,
+                                                                           @PathVariable(name = "field") String field){
+        return new ResponseEntity<>(studentService.getWithPaginationAndSorting(pageNumber, pageSize, field).get()
+                                .map(mapper::studentToAddStudentDTO)
+                                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
 }

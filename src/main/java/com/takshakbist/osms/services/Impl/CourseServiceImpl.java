@@ -14,6 +14,9 @@ import com.takshakbist.osms.services.CourseService;
 import com.takshakbist.osms.utility.Utility;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,8 +78,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> getAll() {
-        return Optional.of(courseRepository.findAll()).orElseThrow(()-> new CourseNotFoundException(""));
+    public List<Course> getAll(String field) {
+        return Optional.of(courseRepository.findAll(Sort.by(field))).orElseThrow(()-> new CourseNotFoundException(""));
     }
 
     @Override
@@ -106,5 +109,11 @@ public class CourseServiceImpl implements CourseService {
                 .filter(course -> basis.equals("before") ? course.getEndTime().isBefore(endTime) : course.getEndTime().equals(endTime))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Page<Course> getWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String field) {
+        return courseRepository.findAll(PageRequest.of(pageNumber,pageSize,Sort.by(field).ascending()));
+    }
+
 
 }

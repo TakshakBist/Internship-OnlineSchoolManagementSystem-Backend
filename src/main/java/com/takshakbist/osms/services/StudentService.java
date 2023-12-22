@@ -3,6 +3,7 @@ package com.takshakbist.osms.services;
 import com.takshakbist.osms.dtos.student.AddCourseInStudentDTO;
 import com.takshakbist.osms.dtos.student.AddStudentDTO;
 import com.takshakbist.osms.entities.Student;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,5 +17,6 @@ public interface StudentService {
     String delete(Long id);
     Long totalCoursesEnrolled(Long id);
     List<Student> filterByBirthDate(LocalDate birthDate, String basis);
+    Page<Student> getWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String field);
 
 }

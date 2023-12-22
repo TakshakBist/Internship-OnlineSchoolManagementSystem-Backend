@@ -14,6 +14,10 @@ import com.takshakbist.osms.repositories.StudentRepository;
 import com.takshakbist.osms.utility.Utility;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,4 +106,10 @@ public class StudentServiceImpl implements com.takshakbist.osms.services.Student
                 .filter(student -> basis.equals("before") ? student.getBirthdate().isBefore(birthDate) : student.getBirthdate().isAfter(birthDate))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Page<Student> getWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String field) {
+        return studentRepository.findAll(PageRequest.of(pageNumber,pageSize, Sort.by(field).ascending()));
+    }
+
 }

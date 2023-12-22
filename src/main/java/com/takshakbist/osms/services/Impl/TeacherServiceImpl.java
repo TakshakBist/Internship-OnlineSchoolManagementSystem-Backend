@@ -15,6 +15,9 @@ import com.takshakbist.osms.services.TeacherService;
 import com.takshakbist.osms.utility.Utility;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,5 +100,10 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherRepository.findAll().stream()
                 .filter(teacher -> basis.equals("before") ? teacher.getJoinDate().isBefore(joinDate) : teacher.getJoinDate().isAfter(joinDate))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<Teacher> getWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String field) {
+        return teacherRepository.findAll(PageRequest.of(pageNumber,pageSize, Sort.by(field).ascending()));
     }
 }

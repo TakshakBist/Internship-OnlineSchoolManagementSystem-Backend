@@ -52,8 +52,8 @@ public class TeacherController {
         return new ResponseEntity<>(iMapper.teacherToTeacherDTO(teacherService.getById(id)),HttpStatus.OK);
     }
 
-    @GetMapping("/teacher")
-    public ResponseEntity<List<AddTeacherDTO>> getAll(@RequestParam(name = "basis", defaultValue = "none") String basis){
+    @GetMapping("/teacher/get/{basis}")
+    public ResponseEntity<List<AddTeacherDTO>> getAll(@PathVariable(name = "basis") String basis){
         List<Teacher> teachers = teacherService.getAll();
         Stream<Teacher> teacherStream = teachers.stream();
 
@@ -85,14 +85,23 @@ public class TeacherController {
         return new ResponseEntity<>(totalDTO,HttpStatus.OK);
     }
 
-    @GetMapping("teacher/filter")
-    public ResponseEntity<List<AddTeacherDTO>> filterByJoinDate(@RequestBody DateTimeDTO dateTimeDTO, @RequestParam(name = "basis") String basis){
+    @GetMapping("teacher/filter/{basis}")
+    public ResponseEntity<List<AddTeacherDTO>> filterByJoinDate(@RequestBody DateTimeDTO dateTimeDTO, @PathVariable(name = "basis") String basis){
         return new ResponseEntity<>(
                 teacherService.filterByJoinDate(dateTimeDTO.getJoinDate(), basis)
                         .stream()
                         .map(iMapper::teacherToAddTeacherDTO)
                         .collect(Collectors.toList()),HttpStatus.OK
         );
+    }
+
+    @GetMapping("teacher/page/{pageNumber}/{pageSize}/{field}")
+    public ResponseEntity<List<AddTeacherDTO>> getWithPaginationAndSorting(@PathVariable(name = "pageNumber") int pageNumber,
+                                                                           @PathVariable(name = "pageSize") int pageSize,
+                                                                           @PathVariable(name = "field") String field){
+        return new ResponseEntity<>(teacherService.getWithPaginationAndSorting(pageNumber, pageSize, field).get()
+                        .map(iMapper::teacherToAddTeacherDTO)
+                        .collect(Collectors.toList()), HttpStatus.OK);
     }
 
 }
