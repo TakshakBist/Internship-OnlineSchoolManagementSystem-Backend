@@ -36,7 +36,7 @@ public class StudentController {
         return new ResponseEntity<>(mapper.studentToAddStudentDTO(student), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/student/{id}")
+    @PutMapping("/student/{id}")
     public ResponseEntity<AddStudentDTO> update(@PathVariable Long id,@RequestBody AddStudentDTO addStudentDTO){
         Student student = studentService.update(id,addStudentDTO);
         return new ResponseEntity<>(mapper.studentToAddStudentDTO(student),HttpStatus.OK);
@@ -102,5 +102,12 @@ public class StudentController {
                                 .map(mapper::studentToAddStudentDTO)
                                 .collect(Collectors.toList()), HttpStatus.OK);
     }
+
+    @PutMapping("/student/unenroll/{id}")
+    public ResponseEntity<StudentDTO> unenrollFromCourse(@PathVariable(name = "id") Long id,
+                                                            @RequestBody AddCourseInStudentDTO addCourseInStudentDTO){
+        return new ResponseEntity<>(mapper.studentToStudentDTO(studentService.unenrollCourse(id, addCourseInStudentDTO)),HttpStatus.OK);
+    }
+
 
 }

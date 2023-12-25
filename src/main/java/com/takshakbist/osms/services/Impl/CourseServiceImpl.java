@@ -45,7 +45,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course update(Long id, AddCourseDTO addCourseDTO) {
-        Course course = courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException(""));
+        Course course = courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException("CourseServiceImpl : update : Course of that Id not found"));
         if (addCourseDTO != null){
             course.setName(addCourseDTO.getName());
             course.setCapacity(addCourseDTO.getCapacity());
@@ -59,32 +59,35 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public Course addInClassroom(Long id,AddCourseInClassroomDTO addCourseInClassroomDTO) {
-        Course course = courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException(""));
-
+        Course course = courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException("CourseServiceImpl : addInClassroom : Course of that Id not found"));
         Classroom classroom = classroomRepository.findById(addCourseInClassroomDTO.getClassroom().getClassroomId())
-                .orElseThrow(()->new ClassroomNotFoundException("Classroom of that id was not found"));
-
-        if (Utility.coursesOverlap( classroom.getCourses(),course)) {
-            throw new ClassroomNotFreeException("Classroom is not free at that time slot");
-        }
+                .orElseThrow(()->new ClassroomNotFoundException("CourseServiceImpl: addInClassroom :Classroom of that id was not found"));
+        checkIfCoursesOverlapAndThrowException(classroom,course);
         classroom.getCourses().add(course);
         course.setClassroom(classroom);
         return courseRepository.save(course);
     }
 
+
+    private void checkIfCoursesOverlapAndThrowException(Classroom classroom, Course course){
+        if (Utility.coursesOverlap( classroom.getCourses(),course)) {
+            throw new ClassroomNotFreeException("CourseServiceImpl : addInClassroom : Classroom is not free at that time slot");
+        }
+    }
+
     @Override
     public Course getById(Long id) {
-        return courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException(""));
+        return courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException("CourseServiceImpl : getById : Course of that Id not found"));
     }
 
     @Override
     public List<Course> getAll(String field) {
-        return Optional.of(courseRepository.findAll(Sort.by(field))).orElseThrow(()-> new CourseNotFoundException(""));
+        return Optional.of(courseRepository.findAll(Sort.by(field))).orElseThrow(()-> new CourseNotFoundException("CourseServiceImpl : getAll : Course not found"));
     }
 
     @Override
     public String delete(Long id) {
-        courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException(""));
+        courseRepository.findById(id).orElseThrow(()->new CourseNotFoundException("CourseServiceImpl : delete : Course of that Id not found"));
         courseRepository.deleteById(id);
         return "Course of id " + id + " deleted";
     }
@@ -106,7 +109,11 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<Course> filterByEndTime(LocalTime endTime, String basis) {
         return courseRepository.findAll().stream()
-                .filter(course -> basis.equals("before") ? course.getEndTime().isBefore(endTime) : course.getEndTime().equals(endTime))
+                .filter(course -> {
+                    LocalTime courseEndTime = course.getEndTime();
+                    return courseEndTime != null &&
+                            (basis.equals("before") ? courseEndTime.isBefore(endTime) : courseEndTime.equals(endTime));
+                })
                 .collect(Collectors.toList());
     }
 

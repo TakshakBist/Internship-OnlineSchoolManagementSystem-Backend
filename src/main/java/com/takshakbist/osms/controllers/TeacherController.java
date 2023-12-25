@@ -32,7 +32,7 @@ public class TeacherController {
     @PostMapping("/teacher")
     public ResponseEntity<AddTeacherDTO> add(@RequestBody AddTeacherDTO addTeacherDTO){
         Teacher teacher = teacherService.add(addTeacherDTO);
-        return new ResponseEntity<>(iMapper.teacherToAddTeacherDTO(teacher), HttpStatus.OK);
+        return new ResponseEntity<>(iMapper.teacherToAddTeacherDTO(teacher), HttpStatus.CREATED);
     }
 
     @PutMapping("/teacher/{id}")

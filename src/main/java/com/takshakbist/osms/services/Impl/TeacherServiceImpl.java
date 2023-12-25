@@ -63,16 +63,16 @@ public class TeacherServiceImpl implements TeacherService {
         for (var course : courses){
             Long courseId = course.getCourseId();
             Course course1 = courseRepository.findById(courseId).orElseThrow(()->new CourseNotFoundException(""));
-
-            if (Utility.coursesOverlap(teacher.getCourses(),course1)){
-                throw new OverlappingCoursesException("Courses are overlapping, a teacher can't teach two classes at same time");
-                }
+            checkIfCoursesOverlapWithTeachersCoursesAndThrowException(teacher,course1);
             teacher.getCourses().add(course1);
         }
-
         return teacherRepository.save(teacher);
     }
-
+    private void checkIfCoursesOverlapWithTeachersCoursesAndThrowException(Teacher teacher,Course course){
+        if (Utility.coursesOverlap(teacher.getCourses(),course)){
+            throw new OverlappingCoursesException("Courses are overlapping, a teacher can't teach two classes at same time");
+        }
+    }
     @Override
     public Teacher getById(Long id) {
         return teacherRepository.findById(id).orElseThrow(()->new TeacherNotFoundException("Teacher of that id not found"));
@@ -98,9 +98,16 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public List<Teacher> filterByJoinDate(LocalDate joinDate, String basis) {
         return teacherRepository.findAll().stream()
-                .filter(teacher -> basis.equals("before") ? teacher.getJoinDate().isBefore(joinDate) : teacher.getJoinDate().isAfter(joinDate))
+                .filter(teacher -> {
+                    LocalDate teacherJoinDate = teacher.getJoinDate();
+                    if (teacherJoinDate == null) {
+                        return false;
+                    }
+                    return basis.equals("before") ? teacherJoinDate.isBefore(joinDate) : teacherJoinDate.isAfter(joinDate);
+                })
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public Page<Teacher> getWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String field) {

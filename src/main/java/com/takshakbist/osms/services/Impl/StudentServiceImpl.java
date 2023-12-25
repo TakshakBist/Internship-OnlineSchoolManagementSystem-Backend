@@ -1,6 +1,7 @@
 package com.takshakbist.osms.services.Impl;
 
 import com.takshakbist.osms.controllers.IMapper;
+import com.takshakbist.osms.dtos.course.AddCourseDTO;
 import com.takshakbist.osms.dtos.student.AddCourseInStudentDTO;
 import com.takshakbist.osms.dtos.student.AddStudentDTO;
 import com.takshakbist.osms.entities.Course;
@@ -11,12 +12,12 @@ import com.takshakbist.osms.exceptions.OverlappingCoursesException;
 import com.takshakbist.osms.exceptions.StudentNotFoundException;
 import com.takshakbist.osms.repositories.CourseRepository;
 import com.takshakbist.osms.repositories.StudentRepository;
+import com.takshakbist.osms.services.StudentService;
 import com.takshakbist.osms.utility.Utility;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class StudentServiceImpl implements com.takshakbist.osms.services.StudentService {
+public class StudentServiceImpl implements StudentService {
     @NonNull
     private final StudentRepository studentRepository;
     @NonNull
@@ -67,20 +68,24 @@ public class StudentServiceImpl implements com.takshakbist.osms.services.Student
         for (var course :courses){
             Long courseId = course.getCourseId();
             Course course1 = courseRepository.findById(courseId).orElseThrow(()->new CourseNotFoundException(""));
-
-            if (Utility.coursesOverlap(student.getCourses(),course1)){
-                throw new OverlappingCoursesException("Courses are overlapping");
-            }
-            if (Utility.isCapacityFull(course1)){
-                throw new CourseNotFoundException("Course Capacity is full, cannot enroll");
-            }
+            checkIfCoursesOverlapWithStudentCoursesAndThrowException(student,course1);
+            checkIfCourseCapacityIsFullAndThrowException(course);
             student.getCourses().add(course1);
-
         }
      return studentRepository.save(student);
     }
 
+    private void checkIfCoursesOverlapWithStudentCoursesAndThrowException(Student student, Course course){
+        if (Utility.coursesOverlap(student.getCourses(),course)){
+            throw new OverlappingCoursesException("Courses are overlapping");
+        }
+    }
 
+    private void checkIfCourseCapacityIsFullAndThrowException(Course course){
+        if (Utility.isCapacityFull(course)){
+            throw new CourseNotFoundException("Course Capacity is full, cannot enroll");
+        }
+    }
     @Override
     public List<Student> getAll() {
         return Optional.of(studentRepository.findAll()).orElseThrow(()->new StudentNotFoundException("Students not found"));
@@ -103,13 +108,30 @@ public class StudentServiceImpl implements com.takshakbist.osms.services.Student
     @Override
     public List<Student> filterByBirthDate(LocalDate birthDate, String basis) {
         return studentRepository.findAll().stream()
-                .filter(student -> basis.equals("before") ? student.getBirthdate().isBefore(birthDate) : student.getBirthdate().isAfter(birthDate))
+                .filter(student -> {
+                    LocalDate studentBirthdate = student.getBirthdate();
+                    return studentBirthdate != null &&
+                            (basis.equals("before") ? studentBirthdate.isBefore(birthDate) : studentBirthdate.isAfter(birthDate));
+                })
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public Page<Student> getWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String field) {
         return studentRepository.findAll(PageRequest.of(pageNumber,pageSize, Sort.by(field).ascending()));
+    }
+
+    @Override
+    public Student unenrollCourse(Long id, AddCourseInStudentDTO addCourseInStudentDTO) {
+        Student student = studentRepository.findById(id).orElseThrow(()->new StudentNotFoundException("Student was not found"));
+        Set<AddCourseDTO> courseList = addCourseInStudentDTO.getCourses();
+
+        for (var course : courseList){
+            Course course1 = courseRepository.findById(course.getCourseId()).orElseThrow(()->new CourseNotFoundException("Course of that id was not found"));
+            student.getCourses().remove(course1);
+        }
+        return studentRepository.save(student);
     }
 
 }

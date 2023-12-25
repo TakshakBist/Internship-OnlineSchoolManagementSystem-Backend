@@ -32,13 +32,15 @@ public class CourseController {
     }
 
     @PutMapping("/course/{id}")
-    public ResponseEntity<AddCourseDTO> update(@PathVariable(name = "id") Long id, @RequestBody AddCourseDTO addCourseDTO){
+    public ResponseEntity<AddCourseDTO> update(@PathVariable(name = "id") Long id,
+                                               @RequestBody AddCourseDTO addCourseDTO){
         Course course = courseService.update(id, addCourseDTO);
         return new ResponseEntity<>(mapper.courseToAddCourseDTO(course),HttpStatus.OK);
     }
 
     @PutMapping("/course/add/{id}")
-    public ResponseEntity<AddCourseInClassroomDTO> addInClassroom(@PathVariable(name = "id") Long id, @RequestBody AddCourseInClassroomDTO addCourseInClassroomDTO){
+    public ResponseEntity<AddCourseInClassroomDTO> addInClassroom(@PathVariable(name = "id") Long id,
+                                                                  @RequestBody AddCourseInClassroomDTO addCourseInClassroomDTO){
         Course course = courseService.addInClassroom(id,addCourseInClassroomDTO);
         return new ResponseEntity<>(mapper.courseToAddCourseInClassroomDTO(course),HttpStatus.OK);
     }
@@ -57,13 +59,15 @@ public class CourseController {
                 .collect(Collectors.toList()),HttpStatus.OK);
     }
 
-    @GetMapping("/course/filter/{basis}")
-    public ResponseEntity<List<AddCourseDTO>> filter(@RequestBody DateTimeDTO dateTimeDTO, @PathVariable(name = "basis") String basis){
+    @GetMapping("/course/filter/{field}/{basis}")
+    public ResponseEntity<List<AddCourseDTO>> filter(@RequestBody DateTimeDTO dateTimeDTO,
+                                                     @PathVariable(name = "field") String field,
+                                                     @PathVariable(name = "basis") String basis){
         List<AddCourseDTO> addCourseDTOS;
-        if (basis.equals("startDate")){
+        if (field.equals("startDate")){
             addCourseDTOS = courseService.filterByStartDate(dateTimeDTO.getStartDate(), basis).stream().map(mapper::courseToAddCourseDTO).collect(Collectors.toList());
         }
-        else if (basis.equals("startTime")){
+        else if (field.equals("startTime")){
             addCourseDTOS = courseService.filterByStartTime(dateTimeDTO.getStartTime(), basis).stream().map(mapper::courseToAddCourseDTO).collect(Collectors.toList());
         }
         else {

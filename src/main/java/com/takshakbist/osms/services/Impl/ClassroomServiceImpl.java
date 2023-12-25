@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public Classroom update(Long id, AddClassroomDTO addClassroomDTO) {
-        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> new ClassroomNotFoundException(""));
+        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> new ClassroomNotFoundException("ClassroomService: update :Classroom of that id not found"));
         if (addClassroomDTO != null){
             classroom.setName(addClassroomDTO.getName());
         }
@@ -44,17 +45,17 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public Classroom getById(Long id) {
-        return classroomRepository.findById(id).orElseThrow(()->new ClassroomNotFoundException(""));
+        return classroomRepository.findById(id).orElseThrow(()->new ClassroomNotFoundException("ClassroomService: getById :Classroom of that id not found"));
     }
 
     @Override
     public List<Classroom> getAll() {
-        return Optional.of(classroomRepository.findAll()).orElseThrow(()-> new ClassroomNotFoundException(""));
+        return Optional.of(classroomRepository.findAll()).orElseThrow(()-> new ClassroomNotFoundException("ClassroomService: getAll :Classroom not found"));
     }
 
     @Override
     public String delete(Long id) {
-        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> new ClassroomNotFoundException(""));
+        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> new ClassroomNotFoundException("ClassroomService: delete :Classroom of that id not found"));
         Set<Course> courseList = classroom.getCourses();
         for (var course: courseList){
             course.setClassroom(null);

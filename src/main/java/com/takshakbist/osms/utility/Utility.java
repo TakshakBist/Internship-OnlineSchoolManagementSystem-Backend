@@ -17,7 +17,6 @@ public class Utility {
     public static boolean coursesOverlap(Set<Course> existingCourses, Course newCourse) {
         if (existingCourses.isEmpty())
             return false;
-
         return existingCourses.stream().anyMatch(existingCourse -> timeOverlap(existingCourse, newCourse));
     }
     private static boolean timeOverlap(Course course1, Course course2) {
@@ -26,13 +25,18 @@ public class Utility {
                 (course2.getStartTime().isBefore(course1.getEndTime()) && course2.getEndTime().isAfter(course1.getStartTime()));
     }
 
-    public static long totalStudentsEnrolledInTeacherCourse(Teacher teacher){
-        return   teacher.getCourses().stream()
-                .flatMap(course -> course.getStudents().stream())
-                .distinct()
-                .count();
+    public static long totalStudentsEnrolledInTeacherCourse(Teacher teacher) {
+        if (teacher == null || teacher.getCourses() == null) {
+            return 0L;
+        }
 
+        return teacher.getCourses()
+                .stream()
+                .mapToLong(course -> course.getStudents().size())
+                .sum();
     }
+
+
 
     public static long totalCoursesEnrolledByStudent(Student student){
         return student.getCourses().size();

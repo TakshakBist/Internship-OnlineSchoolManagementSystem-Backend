@@ -18,5 +18,6 @@ public interface StudentService {
     Long totalCoursesEnrolled(Long id);
     List<Student> filterByBirthDate(LocalDate birthDate, String basis);
     Page<Student> getWithPaginationAndSorting(Integer pageNumber, Integer pageSize, String field);
+    Student unenrollCourse(Long id, AddCourseInStudentDTO addCourseInStudentDTO);
 
 }
