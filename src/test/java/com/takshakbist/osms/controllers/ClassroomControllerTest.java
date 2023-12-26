@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.takshakbist.osms.dtos.classroom.AddClassroomDTO;
 import com.takshakbist.osms.entities.Classroom;
 import com.takshakbist.osms.services.Impl.ClassroomServiceImpl;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,18 +37,34 @@ class ClassroomControllerTest {
     private ClassroomController classroomController;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private MockMvc mockMvc;
+    private Classroom classroom;
+    private AddClassroomDTO inputDTO;
+    private AddClassroomDTO expectedDTO;
+    private List<Classroom> classroomList;
+    @BeforeEach
+    public void setUp(){
+        mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
+        classroom = new Classroom();
+        inputDTO = new AddClassroomDTO();
+        expectedDTO = new AddClassroomDTO();
+        classroomList = new ArrayList<>();
+    }
+
+    @AfterEach
+    public void tearDown(){
+        mockMvc = null;
+        classroom = null;
+        inputDTO = null;
+        expectedDTO = null;
+        classroomList = null;
+    }
 
     @Test
     void givenClassroom_WhenAddClassroom_shouldReturnHTTPCREATED() throws Exception {
 
-        AddClassroomDTO inputDTO = new AddClassroomDTO();
-
-        Classroom classroom = new Classroom();
         when(classroomService.add(any(AddClassroomDTO.class))).thenReturn(classroom);
-
         when(iMapper.classroomToAddClassroomDTO(any(Classroom.class))).thenReturn(inputDTO);
-
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/classroom/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,15 +76,8 @@ class ClassroomControllerTest {
     @Test
     void givenClassroom_whenUpdateClassroom_shouldReturnHTTPOK() throws Exception {
         Long classroomId = 1L;
-        AddClassroomDTO inputDTO = new AddClassroomDTO();
-
-        Classroom classroom = new Classroom();
         when(classroomService.update(any(Long.class), any(AddClassroomDTO.class))).thenReturn(classroom);
-
         when(iMapper.classroomToAddClassroomDTO(any(Classroom.class))).thenReturn(inputDTO);
-
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
-
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/classroom/{id}", classroomId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -79,15 +90,8 @@ class ClassroomControllerTest {
     void givenClassroom_WhenGetByID_shouldReturnHTTPOK() throws Exception {
 
         Long classroomId = 1L;
-        AddClassroomDTO expectedDTO = new AddClassroomDTO();
-
-        Classroom classroom = new Classroom();
         when(classroomService.getById(any(Long.class))).thenReturn(classroom);
-
         when(iMapper.classroomToAddClassroomDTO(any(Classroom.class))).thenReturn(expectedDTO);
-
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
-
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/classroom/{id}", classroomId))
                 .andExpect(status().isOk())
@@ -96,19 +100,12 @@ class ClassroomControllerTest {
 
     @Test
     void givenClassrooms_WhenGetAllClassrooms_shouldReturnHTTP200() throws Exception {
-        // Given
-        AddClassroomDTO expectedDTO = new AddClassroomDTO();
-        Classroom classroom = new Classroom();
-        List<Classroom> classroomList = new ArrayList<>();
+
         classroomList.add(classroom);
-
         when(classroomService.getAll()).thenReturn(classroomList);
-
         when(iMapper.classroomToAddClassroomDTO(any(Classroom.class))).thenReturn(expectedDTO);
 
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/classroom/"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/classroom/get"))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -117,10 +114,7 @@ class ClassroomControllerTest {
     void givenClassroom_WhenDeleteClassroom_ShouldReturnHTTP200() throws Exception {
 
         Long classroomId = 1L;
-
         when(classroomService.delete(any(Long.class))).thenReturn("Deleted successfully");
-
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/classroom/{id}", classroomId))
                 .andExpect(status().isOk())

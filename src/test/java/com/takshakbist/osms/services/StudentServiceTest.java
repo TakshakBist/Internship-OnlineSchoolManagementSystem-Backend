@@ -37,8 +37,6 @@ class StudentServiceTest {
     @Mock
     private IMapper mapper;
 
-    @Mock
-    private CourseRepository courseRepository;
 
     @InjectMocks
     private StudentServiceImpl studentService;
@@ -104,13 +102,11 @@ class StudentServiceTest {
     public void givenEnrollInCourse_WhenStudentAndCoursesExist_ShouldReturnUpdatedStudent() {
         Long studentId = 1L;
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student1));
-        when(courseRepository.findById(anyLong())).thenReturn(Optional.of(new Course()));
         when(studentRepository.save(student1)).thenReturn(student1);
 
         Student result = studentService.enrollInCourse(studentId, addCourseInStudentDTO);
 
         verify(studentRepository, times(1)).findById(studentId);
-        verify(courseRepository, times(1)).findById(anyLong());
         verify(studentRepository, times(1)).save(student1);
         assertEquals(student1, result);
     }

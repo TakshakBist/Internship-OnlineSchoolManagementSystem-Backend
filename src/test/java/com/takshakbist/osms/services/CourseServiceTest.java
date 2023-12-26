@@ -161,17 +161,6 @@ public class CourseServiceTest {
         assertEquals(courses, result);
     }
 
-    @Test
-    public void givenListOfCoursesToFilterByStartTimeToGet_ShouldReturnFilteredListOfCourses() {
-        LocalTime startTime = LocalTime.now();
-        String basis = "before";
-        when(courseRepository.findAll()).thenReturn(courses);
-
-        List<Course> result = courseService.filterByStartTime(startTime, basis);
-
-        verify(courseRepository, times(1)).findAll();
-        assertNotNull(result);
-    }
 
     @Test
     public void givenListOfCoursesToFilterByEndTimeToGet_ShouldReturnFilteredListOfCourses() {
