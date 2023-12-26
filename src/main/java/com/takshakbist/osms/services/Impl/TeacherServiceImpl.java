@@ -45,29 +45,43 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public Teacher update(Long id, AddTeacherDTO addTeacherDTO) {
-        Teacher teacher = teacherRepository.findById(id).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
-        if(addTeacherDTO != null){
+        Teacher teacher = teacherRepository.findById(id)
+                .orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
+
+        setFieldsFromDTO(addTeacherDTO, teacher);
+        return teacherRepository.save(teacher);
+    }
+
+    private void setFieldsFromDTO(AddTeacherDTO addTeacherDTO, Teacher teacher) {
+        if(!Utility.isNull(addTeacherDTO)){
             teacher.setName(addTeacherDTO.getName());
             teacher.setAddress(addTeacherDTO.getAddress());
             teacher.setJoinDate(addTeacherDTO.getJoinDate());
         }
-        return teacherRepository.save(teacher);
     }
 
     @Override
     @Transactional
     public Teacher teachCourse(Long id, AddCourseInTeacherDTO addCourseInTeacherDTO) {
-        Teacher teacher = teacherRepository.findById(id).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
-        Set<AddCourseDTO> courses = addCourseInTeacherDTO.getCourses();
+        Teacher teacher = teacherRepository.findById(id)
+                .orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
 
+        Set<AddCourseDTO> courses = addCourseInTeacherDTO.getCourses();
+        addCourseInTeacherCourses(courses, teacher);
+        return teacherRepository.save(teacher);
+    }
+
+    private void addCourseInTeacherCourses(Set<AddCourseDTO> courses, Teacher teacher) {
         for (var course : courses){
             Long courseId = course.getCourseId();
-            Course course1 = courseRepository.findById(courseId).orElseThrow(()->CourseNotFoundException.builder().message("Course not found").build());
+            Course course1 = courseRepository.findById(courseId)
+                    .orElseThrow(()->CourseNotFoundException.builder().message("Course not found").build());
+
             checkIfCoursesOverlapWithTeachersCoursesAndThrowException(teacher,course1);
             teacher.getCourses().add(course1);
         }
-        return teacherRepository.save(teacher);
     }
+
     private void checkIfCoursesOverlapWithTeachersCoursesAndThrowException(Teacher teacher,Course course){
         if (Utility.coursesOverlap(teacher.getCourses(),course)){
             throw OverlappingCoursesException.builder().message("Courses are overlapping").build();
@@ -75,24 +89,28 @@ public class TeacherServiceImpl implements TeacherService {
     }
     @Override
     public Teacher getById(Long id) {
-        return teacherRepository.findById(id).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
+        return teacherRepository.findById(id)
+                .orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
     }
 
     @Override
     public List<Teacher> getAll() {
-        return Optional.of(teacherRepository.findAll()).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
+        return Optional.of(teacherRepository.findAll())
+                .orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
     }
 
     @Override
     public String delete(Long id) {
-        teacherRepository.findById(id).orElseThrow(()-> TeacherNotFoundException.builder().message("Cannot delete, Teacher not found").build());
+        teacherRepository.findById(id)
+                .orElseThrow(()-> TeacherNotFoundException.builder().message("Cannot delete, Teacher not found").build());
         teacherRepository.deleteById(id);
         return "Teacher of id :" + id + " deleted";
     }
 
     @Override
     public Long getTotalStudentsEnrolled(Long id) {
-        return Utility.totalStudentsEnrolledInTeacherCourse(teacherRepository.findById(id).orElseThrow(()-> new TeacherNotFoundException("Teacher not found")));
+        return Utility.totalStudentsEnrolledInTeacherCourse(teacherRepository.findById(id)
+                .orElseThrow(()-> new TeacherNotFoundException("Teacher not found")));
     }
 
     @Override
@@ -100,7 +118,7 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherRepository.findAll().stream()
                 .filter(teacher -> {
                     LocalDate teacherJoinDate = teacher.getJoinDate();
-                    if (teacherJoinDate == null) {
+                    if (Utility.isNull(teacherJoinDate)) {
                         return false;
                     }
                     return basis.equals("before") ? teacherJoinDate.isBefore(joinDate) : teacherJoinDate.isAfter(joinDate);

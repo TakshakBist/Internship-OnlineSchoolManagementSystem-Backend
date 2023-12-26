@@ -45,21 +45,27 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course update(Long id, AddCourseDTO addCourseDTO) {
-        Course course = courseRepository.findById(id).orElseThrow(()->CourseNotFoundException.builder().message("Course not found").build());
-        if (addCourseDTO != null){
+        Course course = courseRepository.findById(id)
+                .orElseThrow(()->CourseNotFoundException.builder().message("Course not found").build());
+        setFieldsFromDTO(addCourseDTO, course);
+        return courseRepository.save(course);
+    }
+
+    private void setFieldsFromDTO(AddCourseDTO addCourseDTO, Course course) {
+        if (!Utility.isNull(addCourseDTO)){
             course.setName(addCourseDTO.getName());
             course.setCapacity(addCourseDTO.getCapacity());
             course.setStartDate(addCourseDTO.getStartDate());
             course.setStartTime(addCourseDTO.getStartTime());
             course.setEndTime(addCourseDTO.getEndTime());
         }
-        return courseRepository.save(course);
     }
 
     @Override
     @Transactional
     public Course addInClassroom(Long id,AddCourseInClassroomDTO addCourseInClassroomDTO) {
-        Course course = courseRepository.findById(id).orElseThrow(()->CourseNotFoundException.builder().message("Course not found").build());
+        Course course = courseRepository.findById(id)
+                .orElseThrow(()->CourseNotFoundException.builder().message("Course not found").build());
         Classroom classroom = classroomRepository.findById(addCourseInClassroomDTO.getClassroom().getClassroomId())
                 .orElseThrow(()->ClassroomNotFoundException.builder().message("Classroom not found").build());
         checkIfCoursesOverlapAndThrowException(classroom,course);
@@ -77,17 +83,20 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course getById(Long id) {
-        return courseRepository.findById(id).orElseThrow(()->CourseNotFoundException.builder().message("Course is not found").build());
+        return courseRepository.findById(id)
+                .orElseThrow(()->CourseNotFoundException.builder().message("Course is not found").build());
     }
 
     @Override
     public List<Course> getAll(String field) {
-        return Optional.of(courseRepository.findAll(Sort.by(field))).orElseThrow(()-> CourseNotFoundException.builder().message("Course is not found").build());
+        return Optional.of(courseRepository.findAll(Sort.by(field)))
+                .orElseThrow(()-> CourseNotFoundException.builder().message("Course is not found").build());
     }
 
     @Override
     public String delete(Long id) {
-        courseRepository.findById(id).orElseThrow(()->CourseNotFoundException.builder().message("Course of that id not found").build());
+        courseRepository.findById(id)
+                .orElseThrow(()->CourseNotFoundException.builder().message("Course of that id not found").build());
         courseRepository.deleteById(id);
         return "Course of id " + id + " deleted";
     }
@@ -111,7 +120,7 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findAll().stream()
                 .filter(course -> {
                     LocalTime courseEndTime = course.getEndTime();
-                    return courseEndTime != null && endTime != null &&
+                    return !Utility.isNull(courseEndTime) && !Utility.isNull(endTime) &&
                             (basis.equals("before") ? courseEndTime.isBefore(endTime) : courseEndTime.equals(endTime));
                 })
                 .collect(Collectors.toList());

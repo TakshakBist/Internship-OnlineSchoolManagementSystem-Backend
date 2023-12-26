@@ -45,37 +45,49 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student update(Long id, AddStudentDTO addStudentDTO) {
-        Student student = studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that ID not found").build());
-        if (addStudentDTO != null) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(()->StudentNotFoundException.builder().message("Student of that ID not found").build());
+        setFieldsFromDTO(addStudentDTO, student);
+        return studentRepository.save(student);
+    }
+
+    private void setFieldsFromDTO(AddStudentDTO addStudentDTO, Student student) {
+        if (!Utility.isNull(addStudentDTO)) {
             student.setName(addStudentDTO.getName());
             student.setAddress(addStudentDTO.getAddress());
             student.setBirthdate(addStudentDTO.getBirthdate());
         }
-        return studentRepository.save(student);
     }
 
     @Override
     public Student getById(Long id) {
-        return studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
+        return studentRepository.findById(id)
+                .orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
     }
 
     @Override
     @Transactional
     public Student enrollInCourse(Long id, AddCourseInStudentDTO addCourseInStudentDTO) {
-        Student student = studentRepository.findById(id).orElseThrow(()-> StudentNotFoundException.builder().message("Student of that id not found").build());
+        Student student = studentRepository.findById(id)
+                .orElseThrow(()-> StudentNotFoundException.builder().message("Student of that id not found").build());
         Set<Course> courses = addCourseInStudentDTO.getCourses().stream()
                 .map(mapper::addCourseDTOToCourse)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        for (var course :courses){
+        addCourseInStudentCourses(courses, student);
+        return studentRepository.save(student);
+    }
+
+    private void addCourseInStudentCourses(Set<Course> courses, Student student) {
+        for (var course : courses){
             Long courseId = course.getCourseId();
-            Course course1 = courseRepository.findById(courseId).orElseThrow(()->CourseNotFoundException.builder().message("Course of that Id not found").build());
+            Course course1 = courseRepository.findById(courseId)
+                    .orElseThrow(()->CourseNotFoundException.builder().message("Course of that Id not found").build());
             checkIfCoursesOverlapWithStudentCoursesAndThrowException(student,course1);
             checkIfCourseCapacityIsFullAndThrowException(course1);
             student.getCourses().add(course1);
         }
-     return studentRepository.save(student);
     }
 
 
@@ -92,12 +104,14 @@ public class StudentServiceImpl implements StudentService {
     }
     @Override
     public List<Student> getAll() {
-        return Optional.of(studentRepository.findAll()).orElseThrow(()->StudentNotFoundException.builder().message("Student  not found").build());
+        return Optional.of(studentRepository.findAll())
+                .orElseThrow(()->StudentNotFoundException.builder().message("Student  not found").build());
     }
 
     @Override
     public String delete(Long id) {
-        studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
+        studentRepository.findById(id)
+                .orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
         studentRepository.deleteById(id);
         return "Student of id: " + id + " deleted";
     }
@@ -114,7 +128,7 @@ public class StudentServiceImpl implements StudentService {
         return studentRepository.findAll().stream()
                 .filter(student -> {
                     LocalDate studentBirthdate = student.getBirthdate();
-                    return studentBirthdate != null &&
+                    return !Utility.isNull(studentBirthdate) &&
                             (basis.equals("before") ? studentBirthdate.isBefore(birthDate) : studentBirthdate.isAfter(birthDate));
                 })
                 .collect(Collectors.toList());
@@ -128,11 +142,14 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student unenrollCourse(Long id, AddCourseInStudentDTO addCourseInStudentDTO) {
-        Student student = studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
+        Student student = studentRepository.findById(id)
+                .orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
         Set<AddCourseDTO> courseList = addCourseInStudentDTO.getCourses();
 
         for (var course : courseList){
-            Course course1 = courseRepository.findById(course.getCourseId()).orElseThrow(()-> CourseNotFoundException.builder().message("Course of that id not found").build());
+            Course course1 = courseRepository.findById(course.getCourseId())
+                    .orElseThrow(()-> CourseNotFoundException.builder().message("Course of that id not found").build());
+
             student.getCourses().remove(course1);
         }
         return studentRepository.save(student);

@@ -70,7 +70,6 @@ class CourseControllerTest {
         when(courseService.add(any(AddCourseDTO.class))).thenReturn(course);
         when(mapper.courseToAddCourseDTO(any(Course.class))).thenReturn(inputDTO);
 
-
         mockMvc.perform(MockMvcRequestBuilders.post("/api/course")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputDTO)))
@@ -83,9 +82,7 @@ class CourseControllerTest {
 
         Long courseId = 1L;
         when(courseService.update(any(Long.class), any(AddCourseDTO.class))).thenReturn(course);
-
         when(mapper.courseToAddCourseDTO(any(Course.class))).thenReturn(inputDTO);
-
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/course/{id}", courseId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,12 +96,8 @@ class CourseControllerTest {
         Long classroomId = 1L;
         AddCourseInClassroomDTO inputDTO = AddCourseInClassroomDTO.builder().build();
 
-
         when(courseService.addInClassroom(any(Long.class), any(AddCourseInClassroomDTO.class))).thenReturn(course);
-
         when(mapper.courseToAddCourseInClassroomDTO(any(Course.class))).thenReturn(inputDTO);
-
-
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/course/add/{id}", classroomId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -118,12 +111,8 @@ class CourseControllerTest {
 
         Long courseId = 1L;
 
-
         when(courseService.getById(any(Long.class))).thenReturn(course);
-
         when(mapper.courseToAddCourseDTO(any(Course.class))).thenReturn(expectedDTO);
-
-
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/course/{id}", courseId))
                 .andExpect(status().isOk())
@@ -135,9 +124,7 @@ class CourseControllerTest {
 
 
         when(courseService.getAll(any(String.class))).thenReturn(Collections.singletonList(course));
-
         when(mapper.courseToAddCourseDTO(any(Course.class))).thenReturn(expectedDTO);
-
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/course/get/{field}", "fieldName"))
                 .andExpect(status().isOk())
@@ -153,10 +140,7 @@ class CourseControllerTest {
         List<AddCourseDTO> expectedDTOs = List.of(expectedDTO);
 
         when(courseService.filterByStartDate(any(), any(String.class))).thenReturn(List.of(course));
-
         when(mapper.courseToAddCourseDTO(any(Course.class))).thenReturn(expectedDTOs.get(0));
-
-
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/course/filter/{field}/{basis}", field, basis)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -171,7 +155,6 @@ class CourseControllerTest {
         Long courseId = 1L;
 
         when(courseService.delete(any(Long.class))).thenReturn("Deleted successfully");
-
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/course/{id}", courseId))
                 .andExpect(status().isOk())
@@ -189,7 +172,6 @@ class CourseControllerTest {
 
         when(courseService.getWithPaginationAndSorting(any(int.class), any(int.class), any(String.class)))
                 .thenReturn(new PageImpl<>(List.of(course)));
-
         when(mapper.courseToAddCourseDTO(any(Course.class))).thenReturn(expectedDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/course/page/{pageNumber}/{pageSize}/{field}",

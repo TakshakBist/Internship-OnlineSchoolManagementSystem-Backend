@@ -75,8 +75,8 @@ public class TeacherControllerTest {
         when(iMapper.teacherToAddTeacherDTO(any(Teacher.class))).thenReturn(addTeacherDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/teacher")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(addTeacherDTO)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(addTeacherDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("John"))
                 .andExpect(jsonPath("$.teacherId").value(1L))

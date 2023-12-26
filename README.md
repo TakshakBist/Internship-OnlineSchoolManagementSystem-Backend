@@ -28,7 +28,7 @@
 - Ensured classrooms are only assigned to one course at a time.
 - Calculated the total number of students enrolled in a teacher's courses.
 - Calculated the maximum number of courses enrolled by students.
-- Calculate the maximum students that can be enrolled in a course.
+- Prevented Students from enrolling in courses with full capacity.
 
 ## Technical Stack
 
