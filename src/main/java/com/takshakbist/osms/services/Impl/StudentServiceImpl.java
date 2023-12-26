@@ -69,7 +69,7 @@ public class StudentServiceImpl implements StudentService {
             Long courseId = course.getCourseId();
             Course course1 = courseRepository.findById(courseId).orElseThrow(()->new CourseNotFoundException(""));
             checkIfCoursesOverlapWithStudentCoursesAndThrowException(student,course1);
-            checkIfCourseCapacityIsFullAndThrowException(course);
+            checkIfCourseCapacityIsFullAndThrowException(course1);
             student.getCourses().add(course1);
         }
      return studentRepository.save(student);
