@@ -36,7 +36,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public Classroom update(Long id, AddClassroomDTO addClassroomDTO) {
-        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> new ClassroomNotFoundException("ClassroomService: update :Classroom of that id not found"));
+        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> ClassroomNotFoundException.builder().message("Classroom not found").build());
         if (addClassroomDTO != null){
             classroom.setName(addClassroomDTO.getName());
         }
@@ -45,17 +45,17 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public Classroom getById(Long id) {
-        return classroomRepository.findById(id).orElseThrow(()->new ClassroomNotFoundException("ClassroomService: getById :Classroom of that id not found"));
+        return classroomRepository.findById(id).orElseThrow(()->ClassroomNotFoundException.builder().message("Classroom not found").build());
     }
 
     @Override
     public List<Classroom> getAll() {
-        return Optional.of(classroomRepository.findAll()).orElseThrow(()-> new ClassroomNotFoundException("ClassroomService: getAll :Classroom not found"));
+        return Optional.of(classroomRepository.findAll()).orElseThrow(()-> ClassroomNotFoundException.builder().message("Classroom not found").build());
     }
 
     @Override
     public String delete(Long id) {
-        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> new ClassroomNotFoundException("ClassroomService: delete :Classroom of that id not found"));
+        Classroom classroom = classroomRepository.findById(id).orElseThrow(()-> ClassroomNotFoundException.builder().message("Classroom not found").build());
         Set<Course> courseList = classroom.getCourses();
         for (var course: courseList){
             course.setClassroom(null);

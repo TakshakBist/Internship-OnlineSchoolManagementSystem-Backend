@@ -6,10 +6,8 @@ import com.takshakbist.osms.dtos.student.AddCourseInStudentDTO;
 import com.takshakbist.osms.dtos.student.AddStudentDTO;
 import com.takshakbist.osms.entities.Course;
 import com.takshakbist.osms.entities.Student;
-import com.takshakbist.osms.exceptions.CourseNotFoundException;
+import com.takshakbist.osms.exceptions.*;
 
-import com.takshakbist.osms.exceptions.OverlappingCoursesException;
-import com.takshakbist.osms.exceptions.StudentNotFoundException;
 import com.takshakbist.osms.repositories.CourseRepository;
 import com.takshakbist.osms.repositories.StudentRepository;
 import com.takshakbist.osms.services.StudentService;
@@ -25,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,7 +45,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student update(Long id, AddStudentDTO addStudentDTO) {
-        Student student = studentRepository.findById(id).orElseThrow(()->new StudentNotFoundException(""));
+        Student student = studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that ID not found").build());
         if (addStudentDTO != null) {
             student.setName(addStudentDTO.getName());
             student.setAddress(addStudentDTO.getAddress());
@@ -57,17 +56,21 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student getById(Long id) {
-        return studentRepository.findById(id).orElseThrow(()->new StudentNotFoundException(""));
+        return studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
     }
 
     @Override
     @Transactional
     public Student enrollInCourse(Long id, AddCourseInStudentDTO addCourseInStudentDTO) {
-        Student student = studentRepository.findById(id).orElseThrow(()-> new StudentNotFoundException(""));
-        Set<Course> courses = addCourseInStudentDTO.getCourses().stream().map(mapper::addCourseDTOToCourse).collect(Collectors.toSet());
+        Student student = studentRepository.findById(id).orElseThrow(()-> StudentNotFoundException.builder().message("Student of that id not found").build());
+        Set<Course> courses = addCourseInStudentDTO.getCourses().stream()
+                .map(mapper::addCourseDTOToCourse)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
         for (var course :courses){
             Long courseId = course.getCourseId();
-            Course course1 = courseRepository.findById(courseId).orElseThrow(()->new CourseNotFoundException(""));
+            Course course1 = courseRepository.findById(courseId).orElseThrow(()->CourseNotFoundException.builder().message("Course of that Id not found").build());
             checkIfCoursesOverlapWithStudentCoursesAndThrowException(student,course1);
             checkIfCourseCapacityIsFullAndThrowException(course1);
             student.getCourses().add(course1);
@@ -75,25 +78,26 @@ public class StudentServiceImpl implements StudentService {
      return studentRepository.save(student);
     }
 
+
     private void checkIfCoursesOverlapWithStudentCoursesAndThrowException(Student student, Course course){
         if (Utility.coursesOverlap(student.getCourses(),course)){
-            throw new OverlappingCoursesException("Courses are overlapping");
+            throw OverlappingCoursesException.builder().message("Courses are overlapping").build();
         }
     }
 
     private void checkIfCourseCapacityIsFullAndThrowException(Course course){
         if (Utility.isCapacityFull(course)){
-            throw new CourseNotFoundException("Course Capacity is full, cannot enroll");
+            throw CourseCapacityIsFullException.builder().message("Course Capacity is full").build();
         }
     }
     @Override
     public List<Student> getAll() {
-        return Optional.of(studentRepository.findAll()).orElseThrow(()->new StudentNotFoundException("Students not found"));
+        return Optional.of(studentRepository.findAll()).orElseThrow(()->StudentNotFoundException.builder().message("Student  not found").build());
     }
 
     @Override
     public String delete(Long id) {
-        studentRepository.findById(id).orElseThrow(()->new StudentNotFoundException("Id not found,Cannot delete"));
+        studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
         studentRepository.deleteById(id);
         return "Student of id: " + id + " deleted";
     }
@@ -102,7 +106,7 @@ public class StudentServiceImpl implements StudentService {
     public Long totalCoursesEnrolled(Long id) {
         return Utility.totalCoursesEnrolledByStudent(studentRepository
                 .findById(id)
-                .orElseThrow(()->new StudentNotFoundException("totalCoursesEnrolled: Student of that id was not found")));
+                .orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build()));
     }
 
     @Override
@@ -124,11 +128,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student unenrollCourse(Long id, AddCourseInStudentDTO addCourseInStudentDTO) {
-        Student student = studentRepository.findById(id).orElseThrow(()->new StudentNotFoundException("Student was not found"));
+        Student student = studentRepository.findById(id).orElseThrow(()->StudentNotFoundException.builder().message("Student of that id not found").build());
         Set<AddCourseDTO> courseList = addCourseInStudentDTO.getCourses();
 
         for (var course : courseList){
-            Course course1 = courseRepository.findById(course.getCourseId()).orElseThrow(()->new CourseNotFoundException("Course of that id was not found"));
+            Course course1 = courseRepository.findById(course.getCourseId()).orElseThrow(()-> CourseNotFoundException.builder().message("Course of that id not found").build());
             student.getCourses().remove(course1);
         }
         return studentRepository.save(student);

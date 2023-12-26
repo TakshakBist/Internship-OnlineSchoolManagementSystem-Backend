@@ -45,7 +45,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public Teacher update(Long id, AddTeacherDTO addTeacherDTO) {
-        Teacher teacher = teacherRepository.findById(id).orElseThrow(()->new TeacherNotFoundException(""));
+        Teacher teacher = teacherRepository.findById(id).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
         if(addTeacherDTO != null){
             teacher.setName(addTeacherDTO.getName());
             teacher.setAddress(addTeacherDTO.getAddress());
@@ -57,12 +57,12 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public Teacher teachCourse(Long id, AddCourseInTeacherDTO addCourseInTeacherDTO) {
-        Teacher teacher = teacherRepository.findById(id).orElseThrow(()->new TeacherNotFoundException(""));
+        Teacher teacher = teacherRepository.findById(id).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
         Set<AddCourseDTO> courses = addCourseInTeacherDTO.getCourses();
 
         for (var course : courses){
             Long courseId = course.getCourseId();
-            Course course1 = courseRepository.findById(courseId).orElseThrow(()->new CourseNotFoundException(""));
+            Course course1 = courseRepository.findById(courseId).orElseThrow(()->CourseNotFoundException.builder().message("Course not found").build());
             checkIfCoursesOverlapWithTeachersCoursesAndThrowException(teacher,course1);
             teacher.getCourses().add(course1);
         }
@@ -70,22 +70,22 @@ public class TeacherServiceImpl implements TeacherService {
     }
     private void checkIfCoursesOverlapWithTeachersCoursesAndThrowException(Teacher teacher,Course course){
         if (Utility.coursesOverlap(teacher.getCourses(),course)){
-            throw new OverlappingCoursesException("Courses are overlapping, a teacher can't teach two classes at same time");
+            throw OverlappingCoursesException.builder().message("Courses are overlapping").build();
         }
     }
     @Override
     public Teacher getById(Long id) {
-        return teacherRepository.findById(id).orElseThrow(()->new TeacherNotFoundException("Teacher of that id not found"));
+        return teacherRepository.findById(id).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
     }
 
     @Override
     public List<Teacher> getAll() {
-        return Optional.of(teacherRepository.findAll()).orElseThrow(()->new TeacherNotFoundException("No teacher found"));
+        return Optional.of(teacherRepository.findAll()).orElseThrow(()->TeacherNotFoundException.builder().message("Teacher not found").build());
     }
 
     @Override
     public String delete(Long id) {
-        teacherRepository.findById(id).orElseThrow(()-> new TeacherNotFoundException("Cannot delete, Teacher not found"));
+        teacherRepository.findById(id).orElseThrow(()-> TeacherNotFoundException.builder().message("Cannot delete, Teacher not found").build());
         teacherRepository.deleteById(id);
         return "Teacher of id :" + id + " deleted";
     }

@@ -53,11 +53,11 @@ public class TeacherControllerTest {
     @BeforeEach
     void setUp(){
         mockMvc = MockMvcBuilders.standaloneSetup(teacherController).build();
-        addTeacherDTO = new AddTeacherDTO(1L,"John","Ktm",null);
-        teacher = new Teacher(1L,"John","Ktm",null,new HashSet<>());
-        addCourseInTeacherDTO = new AddCourseInTeacherDTO(new HashSet<>());
-        addCourseInTeacherDTO.getCourses().add(new AddCourseDTO(1L,"Thermodynamics",60,null,null,null));
-        teacherDTO = new TeacherDTO(1L,"John","Ktm",null,new HashSet<>());
+        addTeacherDTO = AddTeacherDTO.builder().teacherId(1L).name("John").address("Ktm").build();
+        teacher = Teacher.builder().teacherId(1L).name("John").address("Ktm").courses(new HashSet<>()).build();
+        addCourseInTeacherDTO = AddCourseInTeacherDTO.builder().courses(new HashSet<>()).build();
+        addCourseInTeacherDTO.getCourses().add(AddCourseDTO.builder().courseId(1L).name("Thermodynamics").capacity(60).build());
+        teacherDTO = TeacherDTO.builder().teacherId(1L).name("John").address("Ktm").courses(new HashSet<>()).build();
     }
 
     @AfterEach
@@ -149,7 +149,7 @@ public class TeacherControllerTest {
 
     @Test
     public void givenTeacher_whenGetTotalEnrolledStudents_shouldReturnTotalStudentsEnrolledAndHttpOk() throws Exception {
-        TotalDTO totalDTO = new TotalDTO();
+        TotalDTO totalDTO = TotalDTO.builder().build();
         when(teacherService.getTotalStudentsEnrolled(1L)).thenReturn(10L);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/teacher/total/{id}",1L)

@@ -23,14 +23,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,9 +53,9 @@ public class TeacherServiceTest {
 
     @BeforeEach
     void setUp() {
-        teacher = new Teacher();
-        addTeacherDTO = new AddTeacherDTO();
-        addCourseInTeacherDTO = new AddCourseInTeacherDTO();
+        teacher = Teacher.builder().build();
+        addTeacherDTO = AddTeacherDTO.builder().build();
+        addCourseInTeacherDTO = AddCourseInTeacherDTO.builder().build();
         courses = new HashSet<>();
         courses.add(new AddCourseDTO());
         addCourseInTeacherDTO.setCourses(courses);

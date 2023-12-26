@@ -46,12 +46,12 @@ public class ClassroomServiceTest {
 
     @BeforeEach
     public void setup(){
-        classroom1 = new AddClassroomDTO(1L,"Room 101");
+        classroom1 = AddClassroomDTO.builder().classroomId(1L).name("Room 101").build();
         classrooms = new ArrayList<>();
         HashSet<Course> courses = new HashSet<>();
         courses.add(new Course());
-        classroom = new Classroom(1L,"Room 101",courses);
-        classroom3 = new Classroom(2L, "Room 102", courses);
+        classroom = Classroom.builder().classroomId(1L).name("Room 101").courses(courses).build();
+        classroom3 = Classroom.builder().classroomId(1L).name("Room 102").courses(courses).build();
         classrooms.add(classroom);
         classrooms.add(classroom3);
     }

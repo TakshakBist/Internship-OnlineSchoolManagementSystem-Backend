@@ -50,9 +50,9 @@ class CourseControllerTest {
     @BeforeEach
     public void setUp(){
         mockMvc = MockMvcBuilders.standaloneSetup(courseController).build();
-        expectedDTO = new AddCourseDTO();
-        inputDTO = new AddCourseDTO();
-        course = new Course();
+        expectedDTO = AddCourseDTO.builder().build();
+        inputDTO = AddCourseDTO.builder().build();
+        course = Course.builder().build();
     }
 
     @AfterEach
@@ -97,7 +97,7 @@ class CourseControllerTest {
     @Test
     void givenCourse_WhenAddCourseInClassroom_ShouldReturnHTTPOK() throws Exception {
         Long classroomId = 1L;
-        AddCourseInClassroomDTO inputDTO = new AddCourseInClassroomDTO();
+        AddCourseInClassroomDTO inputDTO = AddCourseInClassroomDTO.builder().build();
 
 
         when(courseService.addInClassroom(any(Long.class), any(AddCourseInClassroomDTO.class))).thenReturn(course);
@@ -146,7 +146,7 @@ class CourseControllerTest {
 
     @Test
     void givenCourses_WhenFilterCourseByStartDate_ShouldReturnHTTPOK() throws Exception {
-        DateTimeDTO dateTimeDTO = new DateTimeDTO();
+        DateTimeDTO dateTimeDTO = DateTimeDTO.builder().build();
         String field = "startDate";
         String basis = "basis";
 

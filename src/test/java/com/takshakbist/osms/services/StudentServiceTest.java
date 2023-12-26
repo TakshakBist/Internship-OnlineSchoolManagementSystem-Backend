@@ -37,19 +37,27 @@ class StudentServiceTest {
     @Mock
     private IMapper mapper;
 
+    @Mock
+    private CourseRepository courseRepository;
 
     @InjectMocks
     private StudentServiceImpl studentService;
 
+
     private Student student1;
     private AddStudentDTO addStudentDTO;
     private AddCourseInStudentDTO addCourseInStudentDTO;
+    private AddCourseDTO addCourseDTO;
 
     @BeforeEach
     public void setup() {
-        student1 = new Student();
-        addStudentDTO = new AddStudentDTO();
-        addCourseInStudentDTO = new AddCourseInStudentDTO();
+        addCourseDTO = AddCourseDTO.builder().courseId(1L).name("Thermodynamics").capacity(60).build();
+        student1 = Student.builder().courses(new HashSet<>()).build();
+        addStudentDTO = AddStudentDTO.builder().build();
+        Set<AddCourseDTO> addCourseDTOS = new HashSet<>();
+        addCourseDTOS.add(addCourseDTO);
+        addCourseInStudentDTO = AddCourseInStudentDTO.builder().courses(addCourseDTOS).build();
+
 
     }
 

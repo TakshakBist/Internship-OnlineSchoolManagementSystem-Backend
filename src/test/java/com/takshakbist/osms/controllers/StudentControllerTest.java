@@ -61,12 +61,12 @@ public class StudentControllerTest {
     @BeforeEach
     void setUp(){
         mockMvc = MockMvcBuilders.standaloneSetup(studentController).build();
-        addStudentDTO = new AddStudentDTO(1L,"Takshak","Tikapur",null);
-        student = new Student(1L,"Takshak","Tikapur",null,new HashSet<>());
-        studentDTO  = new StudentDTO(1L,"Takshak","Tikapur",null,new HashSet<>());
+        addStudentDTO = AddStudentDTO.builder().studentId(1L).name("Takshak").address("Tikapur").build();
+        student = Student.builder().studentId(1L).name("Takshak").address("Tikapur").courses(new HashSet<>()).build();
+        studentDTO = StudentDTO.builder().studentId(1L).name("Takshak").address("Tikapur").courses(new HashSet<>()).build();
         addCourseDTOS = new HashSet<>();
-        addCourseDTOS.add(new AddCourseDTO(1L,"Thermodynamics",60,null, null,null));
-        addCourseInStudentDTO = new AddCourseInStudentDTO();
+        addCourseDTOS.add(AddCourseDTO.builder().courseId(1L).name("Thermodynamics").capacity(60).build());
+        addCourseInStudentDTO = AddCourseInStudentDTO.builder().build();
         addCourseInStudentDTO.setCourses(addCourseDTOS);
     }
 
@@ -154,7 +154,7 @@ public class StudentControllerTest {
 
     @Test
     public void givenStudent_whenGetTotalCoursesEnrolled_shouldGetTotalCoursesEnrolledAndReturnHTTPOK() throws Exception{
-        TotalDTO totalDTO = new TotalDTO();
+        TotalDTO totalDTO = TotalDTO.builder().build();
         when(studentService.totalCoursesEnrolled(1L)).thenReturn(10L);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/student/total/{id}",1L)

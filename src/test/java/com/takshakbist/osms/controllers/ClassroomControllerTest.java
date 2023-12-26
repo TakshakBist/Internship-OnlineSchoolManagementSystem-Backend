@@ -45,9 +45,9 @@ class ClassroomControllerTest {
     @BeforeEach
     public void setUp(){
         mockMvc = MockMvcBuilders.standaloneSetup(classroomController).build();
-        classroom = new Classroom();
-        inputDTO = new AddClassroomDTO();
-        expectedDTO = new AddClassroomDTO();
+        classroom = Classroom.builder().build();
+        inputDTO = AddClassroomDTO.builder().build();
+        expectedDTO = AddClassroomDTO.builder().build();
         classroomList = new ArrayList<>();
     }
 
