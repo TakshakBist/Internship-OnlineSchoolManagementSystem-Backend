@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddCourseInClassroomDTO implements Updatable {
+
     private AddClassroomDTO classroom ;
 }

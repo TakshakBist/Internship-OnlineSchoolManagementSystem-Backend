@@ -111,7 +111,7 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findAll().stream()
                 .filter(course -> {
                     LocalTime courseEndTime = course.getEndTime();
-                    return courseEndTime != null &&
+                    return courseEndTime != null && endTime != null &&
                             (basis.equals("before") ? courseEndTime.isBefore(endTime) : courseEndTime.equals(endTime));
                 })
                 .collect(Collectors.toList());

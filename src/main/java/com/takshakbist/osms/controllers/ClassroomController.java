@@ -40,7 +40,7 @@ public class ClassroomController {
         return new ResponseEntity<>(iMapper.classroomToAddClassroomDTO(classroom),HttpStatus.OK);
     }
 
-    @GetMapping("/")
+    @GetMapping("/get")
     public ResponseEntity<List<AddClassroomDTO>> getAll(){
         return new ResponseEntity<>(classroomService.getAll().stream().map(iMapper::classroomToAddClassroomDTO).collect(Collectors.toList()),HttpStatus.OK);
     }

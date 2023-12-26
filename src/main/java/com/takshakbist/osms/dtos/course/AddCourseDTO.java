@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddCourseDTO implements Updatable {
+
     private Long courseId;
     private String name;
     private Integer capacity;
