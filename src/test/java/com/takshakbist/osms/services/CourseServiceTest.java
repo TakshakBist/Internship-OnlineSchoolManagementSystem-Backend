@@ -54,9 +54,9 @@ public class CourseServiceTest {
 
     @BeforeEach
     public void setup(){
-         course1 = new Course();
-         course2 = new Course();
-         addCourseDTO = new AddCourseDTO();
+         course1 = Course.builder().build();
+         course2 = Course.builder().build();
+         addCourseDTO = AddCourseDTO.builder().build();
          courses = new ArrayList<>();
          courses.add(course1);
          courses.add(course2);
@@ -106,10 +106,10 @@ public class CourseServiceTest {
 
         Long courseId = 1L;
         Long classroomId = 1L;
-        AddCourseInClassroomDTO addCourseInClassroomDTO = new AddCourseInClassroomDTO();
-        addCourseInClassroomDTO.setClassroom(new AddClassroomDTO(classroomId, "Classroom 1"));
+        AddCourseInClassroomDTO addCourseInClassroomDTO = AddCourseInClassroomDTO.builder().build();
+        addCourseInClassroomDTO.setClassroom(AddClassroomDTO.builder().classroomId(classroomId).name("Classroom 1").build());
 
-        Classroom classroom = new Classroom();
+        Classroom classroom = Classroom.builder().build();
         classroom.setCourses(new HashSet<>());
 
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course1));
